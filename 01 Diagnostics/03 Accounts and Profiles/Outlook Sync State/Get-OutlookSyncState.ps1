@@ -322,6 +322,7 @@ if ($app) {
         $o.Accounts = @(Invoke-Section 'Accounts' {
             @(foreach ($a in $ns.Accounts) { [pscustomobject]@{ Name=[string]$a.DisplayName; Type=$(switch ([int]$a.AccountType) { 0 {'Exchange'} 1 {'IMAP'} 2 {'POP3'} 3 {'HTTP'} 4 {'EAS'} default {"Other ($([int]$a.AccountType))"} }); Address=[string]$a.SmtpAddress } })
         } -Default @())
+        if ($o.ExchangeMailboxPresent -and -not @($o.Accounts).Count) { Add-Warning 'Accounts list is empty although an Exchange mailbox store is present; classic Outlook does not always expose modern accounts to automation. Trust Stores.' }
         $inboxInfo = Invoke-Section 'Inbox' {
             $inbox = $ns.GetDefaultFolder(6)
             $items = $inbox.Items; $items.Sort('[ReceivedTime]', $true); $first = $items.GetFirst()

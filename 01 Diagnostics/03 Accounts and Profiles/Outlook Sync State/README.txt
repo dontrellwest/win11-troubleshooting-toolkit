@@ -51,4 +51,6 @@ LIMITS
   - Exchange paths (connection mode, Sync Issues, cached OST) were built to
     the documented interface but the test machine had only a PST profile;
     confirm them on a mailbox-connected machine.
+  - Accounts can read 0 with a mailbox signed in; classic Outlook does not
+    always expose modern accounts to automation. Stores is the reliable list.
   - Exchange and Microsoft 365 checks need a domain or cloud-joined machine.
