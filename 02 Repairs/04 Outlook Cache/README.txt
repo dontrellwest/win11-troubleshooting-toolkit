@@ -9,7 +9,10 @@ WHAT IT DOES
 
 WHEN TO USE IT
 
-  A damaged OST is suspected after checking Outlook connectivity.
+  Only after ruling out a display problem, which looks the same to the
+  user: mail is current in Outlook on the web or new Outlook, and View >
+  Reset View did not fix classic Outlook. Run Get-OutlookSyncState
+  (Diagnostics > Accounts and Profiles) first; it says which case this is.
   Confirm mail and drafts are synced to the server before rebuilding.
   Unsynced local items may be hard to recover, even from a saved old OST.
 
@@ -21,6 +24,8 @@ HOW TO RUN IT
   -TargetUser 'DOMAIN\user' selects a user; another account requires admin.
   The default Outlook folder and Office 16 ForceOSTPath are checked.
   Logs go to C:\Temp\Toolkit, with the target user's Temp as a fallback.
+  If the OST was written in the last 10 minutes the confirmation prompt
+  says so: sync is alive, and a rebuild is probably the wrong fix.
 
 WHAT TO LOOK AT
 

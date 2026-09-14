@@ -41,6 +41,7 @@ FOLDERS
       Group Policy               Applied policy and recent errors
       Logon Health               Domain, tickets, time and Entra status
       OneDrive and Folder Backup  Account and folder configuration
+      Outlook Sync State         Sync problem or display problem, first
       Profile Health             Profile records and size estimates
       Profile Inventory          CSV inventory; does not delete profiles
     04 Performance
@@ -74,7 +75,7 @@ REPAIRS
   Read its /? help; use /whatif to preview native repairs.
 
 NOTES
-  27 tools: 22 local diagnostics, four repairs and one fleet runner.
+  28 tools: 23 local diagnostics, four repairs and one fleet runner.
   Domain/Entra and successful fleet runs need a managed test environment.
   Outlook cache repair requires classic Outlook and a local OST cache.
   DISM/SFC commands were checked; execution was excluded from laptop tests.

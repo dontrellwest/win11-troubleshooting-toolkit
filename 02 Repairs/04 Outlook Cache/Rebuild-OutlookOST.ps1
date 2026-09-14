@@ -303,12 +303,14 @@ if(-not (Test-Path -LiteralPath $folder -PathType Container)){throw "Nothing to 
 $files=@(Get-ChildItem -LiteralPath $folder -File -Force -Filter '*.ost' -ErrorAction Stop | Where-Object {$_.Extension -ieq '.ost'})
 if(-not $files.Count){throw "Nothing to do: no OST files in $folder. New Outlook and PST files are not supported."}
 foreach($file in $files){$null=Assert-LocalRepairPath $file.FullName $folder;if($file.Length -gt 20GB){Add-Warning ($file.Name+' exceeds 20 GB; resynchronization may take a long time.')}}
+$ostFreshNote='';$newestOst=$files | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+if($newestOst){$ostAgeMin=[int]((Get-Date)-$newestOst.LastWriteTime).TotalMinutes;if($ostAgeMin -le 10){$ostFreshNote=" WARNING: $($newestOst.Name) was written $ostAgeMin minute(s) ago, so sync appears active. Rule out a display problem (View > Reset View, Get-OutlookSyncState) first.";Add-Warning ("OST written {0} minute(s) ago; sync appears active. Rule out a display problem before rebuilding." -f $ostAgeMin)}}
 $old=@(Get-ChildItem -LiteralPath $folder -File -Force -Filter '*.ost.old-*' -ErrorAction Stop)
 $procs=@(Get-TargetProcesses 'OUTLOOK.EXE' $user);$exe=Invoke-Section 'Outlook executable' {Get-OutlookExecutable}
 $mb=Round1 (($files | Measure-Object Length -Sum).Sum/1MB)
 $preview=[bool]$WhatIfPreference;$stamp=(Get-Date -Format 'yyyyMMdd-HHmmss')+'-'+[guid]::NewGuid().ToString('N').Substring(0,8)
 $script:RepairLog=New-RepairLog $LogPath (Join-Path $local 'Temp') 'OutlookOSTRebuild' $preview
-$plan="Close classic Outlook in session $($user.SessionId), rename $($files.Count) OST files ($mb MB) in $folder to .ost.old-$stamp, then open Outlook. Confirm mail is synced to the server first."
+$plan="Close classic Outlook in session $($user.SessionId), rename $($files.Count) OST files ($mb MB) in $folder to .ost.old-$stamp, then open Outlook. Confirm mail is synced to the server first."+$ostFreshNote
 Write-RepairLog $plan
 foreach($file in $files){Write-RepairLog ('Planned rename: '+$file.FullName+' -> '+$file.Name+'.old-'+$stamp)}
 $o=[ordered]@{ComputerName=$env:COMPUTERNAME;CollectedAt=[datetime]::Now;WhatIf=$preview;Performed=$false;TargetUser=$user.Name;TargetSessionId=[int]$user.SessionId;RunningAs=$user.RunningAs;OstFolder=$folder;OstFilesFound=$files.Count;OstMB=$mb;OutlookWasRunning=[bool]$procs.Count;OutlookClosedGracefully=$null;OstRenamed=0;RenamedFiles='';RenameFailed='';OutlookStarted=$false;StartMethod='Not attempted';OldFilesLeftBehindMB=(Round1 (($old | Measure-Object Length -Sum).Sum/1MB));LogPath=$script:RepairLog;NextStep='Preview or declined; no OST files renamed';Warnings=''}
