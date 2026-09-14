@@ -41,7 +41,8 @@ FOLDERS
       Group Policy               Applied policy and recent errors
       Logon Health               Domain, tickets, time and Entra status
       OneDrive and Folder Backup  Account and folder configuration
-      Outlook Sync State         Sync problem or display problem, first
+      Outlook Sync State (Classic)  Classic Outlook: sync or display problem
+      Outlook Sync State (New Outlook)  New Outlook app, data and service
       Profile Health             Profile records and size estimates
       Profile Inventory          CSV inventory; does not delete profiles
     04 Performance
@@ -61,7 +62,8 @@ FOLDERS
     01 Windows System Files      DISM and System File Checker
     02 Print Queue               Clear jobs and restart the spooler
     03 Explorer and Icon Cache   Restart Explorer and rebuild icon caches
-    04 Outlook Cache             Rename classic Outlook OST caches
+    04 Outlook Cache (Classic)   Rename classic Outlook OST caches
+    05 Outlook Cache (New Outlook)  Move new Outlook data aside and reopen
   03 Fleet                       Run reviewed diagnostics over existing WinRM
   _Maintenance                   Test scripts, results and archived material
 
@@ -75,9 +77,9 @@ REPAIRS
   Read its /? help; use /whatif to preview native repairs.
 
 NOTES
-  28 tools: 23 local diagnostics, four repairs and one fleet runner.
+  30 tools: 24 local diagnostics, five repairs and one fleet runner.
   Domain/Entra and successful fleet runs need a managed test environment.
-  Outlook cache repair requires classic Outlook and a local OST cache.
+  Outlook repairs: classic needs a local OST; new Outlook signs in again.
   DISM/SFC commands were checked; execution was excluded from laptop tests.
   Current test summary: _Maintenance\Documentation\TEST-RESULTS.txt.
   The original folders and files are preserved in _Maintenance\Archive.

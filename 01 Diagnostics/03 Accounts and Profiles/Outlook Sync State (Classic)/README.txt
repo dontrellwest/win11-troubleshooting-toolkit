@@ -26,6 +26,7 @@ HOW TO RUN IT
   PowerShell: .\Get-OutlookSyncState.ps1 -Display
   -StaleMinutes 30 changes when an OST write or Inbox item counts as old.
   Takes about 5 seconds.
+  For the new Outlook app use the Outlook Sync State (New Outlook) folder.
 
   Outlook automation only works from the user's own session. Elevated with
   your own account, or with Outlook closed, the report still covers the

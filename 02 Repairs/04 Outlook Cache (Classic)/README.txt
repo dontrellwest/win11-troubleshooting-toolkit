@@ -5,7 +5,8 @@ WHAT IT DOES
 
   Closes classic Outlook, renames its OST cache files and opens Outlook.
   Outlook downloads fresh mailbox data. Old caches are kept, never deleted.
-  PST files and the new Outlook app are left alone.
+  PST files and the new Outlook app are left alone. For the new Outlook
+  app use the Outlook Cache (New Outlook) folder.
 
 WHEN TO USE IT
 

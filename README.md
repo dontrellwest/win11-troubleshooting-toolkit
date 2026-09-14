@@ -1,6 +1,6 @@
 # Windows 11 Troubleshooting Toolkit
 
-A field toolkit for an MSP technician: **28 PowerShell diagnostic and repair tools** for Windows 11 laptops and desktops on Active Directory and Microsoft 365. It runs straight from a flash drive, installs nothing, and needs only Windows PowerShell 5.1 with inbox modules.
+A field toolkit for an MSP technician: **30 PowerShell diagnostic and repair tools** for Windows 11 laptops and desktops on Active Directory and Microsoft 365. It runs straight from a flash drive, installs nothing, and needs only Windows PowerShell 5.1 with inbox modules.
 
 Every tool has a double-click `.cmd` launcher and a one-page plain-text guide, returns structured objects so the same script can answer one ticket at a desk or run across a fleet into CSV, and is built to a written specification with an automated acceptance suite.
 
@@ -9,18 +9,19 @@ Every tool has a double-click `.cmd` launcher and a one-page plain-text guide, r
 ## Layout
 
 ```
-01 Diagnostics/          23 read-only tools, grouped by problem area
+01 Diagnostics/          24 read-only tools, grouped by problem area
   01 System Information    Machine Fact Sheet, Boot and Shutdown History, Reliability History,
                            Recent Changes, Software Inventory
   02 Network               Connectivity, Internet Speed, Mapped Drives and Credentials
   03 Accounts and Profiles Group Policy, Logon Health, OneDrive and Folder Backup,
-                           Profile Health, Profile Inventory, Outlook Sync State
+                           Profile Health, Profile Inventory, Outlook Sync State (Classic / New Outlook)
   04 Performance           Disk Space, Performance Overview, Resource Usage, Startup Programs
   05 Windows Update        Update Status
   06 Printing              Printer Inventory
   07 Security              Antivirus Status, Encryption and Firmware, Local Administrators
-02 Repairs/              4 guarded repair tools: Windows System Files (DISM + SFC), Print Queue,
-                         Explorer and Icon Cache, Outlook Cache - each with a native CMD fallback
+02 Repairs/              5 guarded repair tools: Windows System Files (DISM + SFC), Print Queue,
+                         Explorer and Icon Cache, Outlook Cache (Classic), Outlook Cache (New Outlook) -
+                         each with a native CMD fallback
 03 Fleet/                Runs any read-only tool over WinRM against a host list or AD search base
 ```
 
@@ -45,7 +46,7 @@ From PowerShell, `.\Get-Example.ps1` returns objects for `Export-Csv` or `Conver
 
 ## Status
 
-All 28 tools are built, reviewed and verified on a workgroup Windows 11 Home machine: every diagnostic run elevated and unelevated, every guard and preview path exercised, and the Print Spooler and Explorer repairs executed for real. The acceptance suite (833 static, 49 regression and 76 launcher checks) passes with zero failures.
+All 30 tools are built, reviewed and verified on a workgroup Windows 11 Home machine: every diagnostic run elevated and unelevated, every guard and preview path exercised, and the Print Spooler and Explorer repairs executed for real. The acceptance suite (901 static, 55 regression and 82 launcher checks) passes with zero failures.
 
 **Not yet proven:** the domain and Entra paths (Group Policy, Kerberos, secure channel, LAPS, WSUS targeting, GPO printer attribution) are written to specification and degrade to `$null` plus a warning on a non-domain machine, but have not yet returned real data from a domain controller. A successful remote fleet run, DISM/SFC execution, and repairing another signed-in user's session as an elevated technician are likewise untested. Validation on a domain-joined machine is the next step.
 
