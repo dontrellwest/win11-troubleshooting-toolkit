@@ -48,9 +48,9 @@ LIMITS
 
   - The verdict is a hint from local signals. Outlook on the web is the
     authority on what the server actually holds.
-  - Exchange paths (connection mode, Sync Issues, cached OST) were built to
-    the documented interface but the test machine had only a PST profile;
-    confirm them on a mailbox-connected machine.
+  - Verified on a Microsoft 365 mailbox in cached mode: healthy, view filter,
+    Work Offline and Outlook-closed cases. Online (non-cached) mode and a
+    growing Sync Issues folder have not been seen yet.
   - Accounts can read 0 with a mailbox signed in; classic Outlook does not
     always expose modern accounts to automation. Stores is the reliable list.
   - Exchange and Microsoft 365 checks need a domain or cloud-joined machine.
