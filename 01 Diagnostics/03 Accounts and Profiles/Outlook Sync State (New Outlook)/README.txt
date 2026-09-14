@@ -8,8 +8,9 @@ WHAT IT DOES
   Checks the new Outlook app (olk.exe) for the signed-in user. New Outlook
   has no automation interface, no profile and no OST, so this reads what
   exists: the Store package and version, whether it is running, the
-  WebView2 runtime it depends on, the local data folders and how recently
-  they changed, the default mail client, the classic/new switch policies,
+  WebView2 runtime it depends on, the local data under Microsoft\Olk (the
+  offline store) and how recently it changed, the default mail client, the
+  classic/new switch policies,
   and whether the Microsoft 365 endpoints answer. Then a verdict.
 
 WHEN TO USE IT
@@ -39,8 +40,9 @@ WHAT TO LOOK AT
                          WebView2 runtime; nothing else matters until then.
   ServiceOutlookOffice   False with ServiceLogin False is a network
                          problem, not an Outlook problem.
-  SignedInHint           False means no account data on this PC yet.
-  LocalDataAgeMinutes    Single digits means the app is syncing right now.
+  SignedInHint           False means no offline store on this PC yet.
+  LocalDataAgeMinutes    Newest write in the offline store. Single digits
+                         means the app is syncing right now.
   DefaultMailClient      Which Outlook mailto links open in.
   AutoMigrationPolicy    A policy value here is why the user was moved.
 
@@ -48,7 +50,8 @@ LIMITS
 
   - The mailbox cannot be read. Outlook on the web is the authority on what
     the server holds; this tool reports app, data and service signals only.
-  - Verified on a machine where new Outlook was installed but never signed
-    in. The signed-in data layout has not been observed yet.
+  - Local data lives under AppData\Local\Microsoft\Olk (WebView2 offline
+    store, attachments, settings); the Store package folder holds only
+    sentinels and icons. Classic Outlook's Microsoft\Outlook is not read.
   - Another user's package version needs admin; without it the install is
     inferred from the data folder.

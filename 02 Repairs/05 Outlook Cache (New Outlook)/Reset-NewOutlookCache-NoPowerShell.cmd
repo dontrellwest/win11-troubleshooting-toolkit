@@ -39,14 +39,24 @@ if errorlevel 1 (
   echo New Outlook data folder is unavailable or linked. Refusing.
   exit /b 1
 )
+set "OLKDATA=%LOCALAPPDATA%\Microsoft\Olk"
 set "FOUND="
 for %%D in (LocalCache LocalState RoamingState TempState Settings) do if exist "%OLKDIR%\%%D\" set "FOUND=1"
+if exist "%OLKDATA%\" (
+  set "NATIVEPATH=%OLKDATA%"
+  call :CheckPath
+  if errorlevel 1 (
+    echo New Outlook data folder Microsoft\Olk is linked. Refusing.
+    exit /b 1
+  )
+  set "FOUND=1"
+)
 if not defined FOUND (
   echo Nothing to do: no new Outlook data folders for this user.
   exit /b 1
 )
-echo This closes new Outlook and moves its data folders aside under
-echo "%OLKDIR%".
+echo This closes new Outlook and moves its data folders aside:
+echo "%OLKDATA%" and the Store package data under "%OLKDIR%".
 echo The app signs in again through Windows. Unsent drafts may be lost.
 choice /c YN /n /m "Continue? Y or N: "
 if errorlevel 2 exit /b 0
@@ -61,10 +71,18 @@ if errorlevel 1 ping.exe -n 21 127.0.0.1 >nul 2>&1
 taskkill /f /im olk.exe /fi "SESSION eq %TARGETSESSION%" /fi "USERNAME eq %USERDOMAIN%\%USERNAME%" >>"%LOG%" 2>&1
 set "NATIVEPATH=%OLKDIR%"
 call :CheckPath
-if errorlevel 1 goto :restart
+if errorlevel 1 goto if exist "%OLKDATA%\" (
+  echo Move "%OLKDATA%" to "Olk.old-%STAMP%">>"%LOG%"
+  ren "%OLKDATA%" "Olk.old-%STAMP%" >>"%LOG%" 2>&1
+)
+:restart
 for %%D in (LocalCache LocalState RoamingState TempState Settings) do if exist "%OLKDIR%\%%D\" (
   echo Move "%OLKDIR%\%%D" to "%%D.old-%STAMP%">>"%LOG%"
   ren "%OLKDIR%\%%D" "%%D.old-%STAMP%" >>"%LOG%" 2>&1
+)
+if exist "%OLKDATA%\" (
+  echo Move "%OLKDATA%" to "Olk.old-%STAMP%">>"%LOG%"
+  ren "%OLKDATA%" "Olk.old-%STAMP%" >>"%LOG%" 2>&1
 )
 :restart
 start "" explorer.exe shell:AppsFolder\Microsoft.OutlookForWindows_8wekyb3d8bbwe!Microsoft.OutlookforWindows
@@ -80,7 +98,7 @@ exit /b 0
 :help
 echo Reset-NewOutlookCache-NoPowerShell.cmd
 echo Run unelevated as the affected user at the local console.
-echo Moves new Outlook's local data folders aside and reopens the app.
+echo Moves Microsoft\Olk and the Store package data aside and reopens the app.
 echo The app signs in again through Windows. Unsent drafts may be lost.
 echo Logs to your Temp folder. /whatif prints the plan. /? displays this help.
 exit /b 0

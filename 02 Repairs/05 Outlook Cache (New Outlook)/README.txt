@@ -3,10 +3,11 @@ NEW OUTLOOK CACHE RESET
 
 WHAT IT DOES
 
-  Closes the new Outlook app, moves its local data folders aside as
-  backups, and opens it again. The app signs in again through Windows and
-  rebuilds its cache from the server. Nothing is deleted. Classic Outlook,
-  its OST and PST files are left alone.
+  Closes the new Outlook app, moves its local data aside as backups -
+  AppData\Local\Microsoft\Olk (offline store, attachments, settings) and the
+  Store package data - and opens it again. The app signs in again through
+  Windows and rebuilds its cache from the server. Nothing is deleted.
+  Classic Outlook, its OST and PST files are left alone.
 
 WHEN TO USE IT
 
@@ -35,11 +36,13 @@ WHAT TO LOOK AT
 
 LIMITS
 
-  The moved folders are LocalCache, LocalState, RoamingState, TempState
-  and Settings under the app's package folder; nothing else is touched.
+  Moved: Microsoft\Olk, plus LocalCache, LocalState, RoamingState, TempState
+  and Settings under the Store package folder. Nothing else is touched;
+  classic Outlook's Microsoft\Outlook folder is never in scope.
   Missing, linked or uncertain user paths and SYSTEM are refused.
   Native option: Reset-NewOutlookCache-NoPowerShell.cmd /? or /whatif.
   Native mode needs a local, unelevated console session.
   Preview writes a plan log; it does not close the app or move folders.
-  Verified with the app installed but not signed in; a signed-in reset
-  and the sign-in prompt afterwards have not been observed yet.
+  Verified on a signed-in Microsoft 365 account: 286 MB moved aside, the
+  app reopened and signed back in through Windows by itself, no prompt.
+  A machine where Windows holds no token for the account will prompt.

@@ -179,7 +179,6 @@ function Show-Result {
 # ---------------------------------------------------------------- end toolkit helpers
 # ---------------------------------------------------------------- tool body
 $script:PackageFamily = 'Microsoft.OutlookForWindows_8wekyb3d8bbwe'
-$script:DataFolderNames = @('LocalCache', 'LocalState', 'RoamingState', 'TempState', 'Settings')
 function Get-SessionProcessCount {
     param([string]$Name, $User)
     if ($null -eq $User.SessionId) { return $null }
@@ -268,31 +267,35 @@ else {
     $o.UseNewOutlookPreference = Invoke-Section 'UseNewOutlook' { $v = Get-RegValue ($console.Hive + '\Software\Microsoft\Office\16.0\Outlook\Preferences') 'UseNewOutlook'; if ($null -eq $v) { '(not set)' } else { [string]$v } }
 }
 
-# Local data: the Store package folder under the target user's profile, never the technician's
+# Local data: new Outlook keeps its offline store, attachments and settings under AppData\Local\Microsoft\Olk
+# (a WebView2 profile); the Store package folder holds only sentinels and icons. Both are read from the target
+# user's profile, never the technician's. Classic Outlook's AppData\Local\Microsoft\Outlook is never touched.
 if (-not $console.ProfilePath) { Add-Warning 'Target profile path unavailable; local data not checked.' }
 else {
-    $root = Join-Path $console.ProfilePath ('AppData\Local\Packages\' + $script:PackageFamily)
-    $o.DataFolder = $root; $o.DataFolderExists = Test-Path -LiteralPath $root -PathType Container
-    if ($null -eq $o.NewOutlookInstalled) { $o.NewOutlookInstalled = $o.DataFolderExists; Add-Warning 'Install state inferred from the data folder; the version needs admin for another user.' }
-    if ($o.DataFolderExists) {
-        $o.DataFolders = @(Invoke-Section 'Data folders' {
-            @(foreach ($n in $script:DataFolderNames) {
-                $p = Join-Path $root $n
-                if (-not (Test-Path -LiteralPath $p -PathType Container)) { continue }
-                $files = @(Get-ChildItem -LiteralPath $p -Recurse -File -Force -ErrorAction SilentlyContinue)
-                $newest = $files | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-                [pscustomobject]@{ Name=$n; Files=[int]$files.Count; SizeMB=(Round1 (($files | Measure-Object Length -Sum).Sum / 1MB)); LastWrite=$(if ($newest) { $newest.LastWriteTime } else { $null }) }
-            })
-        } -Default @())
-        $o.LocalDataFiles = [int](($o.DataFolders | Measure-Object Files -Sum).Sum)
-        $o.LocalDataMB = Round1 (($o.DataFolders | Measure-Object SizeMB -Sum).Sum)
-        $newestRow = $o.DataFolders | Where-Object { $_.LastWrite } | Sort-Object LastWrite -Descending | Select-Object -First 1
-        if ($newestRow) { $o.LocalDataLastWrite = $newestRow.LastWrite; $o.LocalDataAgeMinutes = [int]([datetime]::Now - $newestRow.LastWrite).TotalMinutes }
-        $state = $o.DataFolders | Where-Object { $_.Name -eq 'LocalState' } | Select-Object -First 1
-        $o.SignedInHint = [bool]($state -and $state.Files -gt 0)
-    }
+    $olk = Join-Path $console.ProfilePath 'AppData\Local\Microsoft\Olk'
+    $pkg = Join-Path $console.ProfilePath ('AppData\Local\Packages\' + $script:PackageFamily)
+    $o.DataFolder = $olk; $o.DataFolderExists = Test-Path -LiteralPath $olk -PathType Container
+    if ($null -eq $o.NewOutlookInstalled) { $o.NewOutlookInstalled = (Test-Path -LiteralPath $pkg -PathType Container); Add-Warning 'Install state inferred from the package folder; the version needs admin for another user.' }
+    $o.DataFolders = @(Invoke-Section 'Data folders' {
+        $rows = @()
+        foreach ($spec in @(@('Olk\EBWebView', (Join-Path $olk 'EBWebView')), @('Olk\Attachments', (Join-Path $olk 'Attachments')),
+                            @('Olk\pst_index_v2', (Join-Path $olk 'pst_index_v2')), @('Olk\logs', (Join-Path $olk 'logs')),
+                            @('Package\LocalState', (Join-Path $pkg 'LocalState')), @('Package\LocalCache', (Join-Path $pkg 'LocalCache')), @('Package\Settings', (Join-Path $pkg 'Settings')))) {
+            if (-not (Test-Path -LiteralPath $spec[1] -PathType Container)) { continue }
+            $files = @(Get-ChildItem -LiteralPath $spec[1] -Recurse -File -Force -ErrorAction SilentlyContinue)
+            $newest = $files | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+            $rows += [pscustomobject]@{ Name=$spec[0]; Files=[int]$files.Count; SizeMB=(Round1 (($files | Measure-Object Length -Sum).Sum / 1MB)); LastWrite=$(if ($newest) { $newest.LastWriteTime } else { $null }) }
+        }
+        $rows
+    } -Default @())
+    $o.LocalDataFiles = [int](($o.DataFolders | Measure-Object Files -Sum).Sum)
+    $o.LocalDataMB = Round1 (($o.DataFolders | Measure-Object SizeMB -Sum).Sum)
+    # The WebView2 store is the mailbox cache: present means signed in here, its newest write means activity.
+    $store = $o.DataFolders | Where-Object { $_.Name -eq 'Olk\EBWebView' } | Select-Object -First 1
+    $o.SignedInHint = [bool]($store -and $store.Files -gt 0)
+    $newestRow = if ($store -and $store.LastWrite) { $store } else { $o.DataFolders | Where-Object { $_.LastWrite } | Sort-Object LastWrite -Descending | Select-Object -First 1 }
+    if ($newestRow) { $o.LocalDataLastWrite = $newestRow.LastWrite; $o.LocalDataAgeMinutes = [int]([datetime]::Now - $newestRow.LastWrite).TotalMinutes }
 }
-
 # Windows account state (dsregcmd describes the running user; only meaningful when that is the target)
 if ($console.IsMe) {
     $ds = Invoke-Section 'dsregcmd' { Invoke-Native -FilePath 'dsregcmd.exe' -ArgumentList '/status' }

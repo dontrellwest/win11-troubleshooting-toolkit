@@ -235,8 +235,8 @@ function Get-TargetProcesses {
     param([string]$Name,$User)
     $WhatIfPreference=$false # GetOwner reads process ownership; it does not change a process.
     @(Get-CimInstance Win32_Process -Filter ("Name='{0}' AND SessionId={1}" -f $Name,[int]$User.SessionId) -ErrorAction Stop | Where-Object {
-        $owner=Invoke-CimMethod -InputObject $_ -MethodName GetOwner -ErrorAction Stop
-        $owner.ReturnValue -eq 0 -and ('{0}\{1}' -f $owner.Domain,$owner.User) -eq $User.Name
+        $owner=$null;try{$owner=Invoke-CimMethod -InputObject $_ -MethodName GetOwner -ErrorAction Stop}catch{return $false} # a process that exited mid-enumeration is not a target
+        $owner -and $owner.ReturnValue -eq 0 -and ('{0}\{1}' -f $owner.Domain,$owner.User) -eq $User.Name
     })
 }
 function Start-NewOutlook {
@@ -273,13 +273,13 @@ $script:DataFolderNames=@('LocalCache','LocalState','RoamingState','TempState','
 $user=Resolve-RepairTarget (& { $WhatIfPreference=$false; Get-ConsoleUser -OverrideName $TargetUser })
 $local=Assert-LocalRepairPath (Join-Path $user.ProfilePath 'AppData\Local') $user.ProfilePath
 $root=Assert-LocalRepairPath (Join-Path $local ('Packages\'+$script:PackageFamily)) $local
-if(-not (Test-Path -LiteralPath $root -PathType Container)){throw "Nothing to do: new Outlook has no data folder for this user: $root"}
-$folders=@(foreach($n in $script:DataFolderNames){$p=Join-Path $root $n;if(Test-Path -LiteralPath $p -PathType Container){Get-Item -LiteralPath $p -Force -ErrorAction Stop}})
-if(-not $folders.Count){throw "Nothing to do: none of the new Outlook data folders exist under $root."}
-foreach($f in $folders){$null=Assert-LocalRepairPath $f.FullName $root}
+$olk=Assert-LocalRepairPath (Join-Path $local 'Microsoft\Olk') $local   # offline store, attachments, settings; classic Outlook's Microsoft\Outlook is never touched
+$folders=@(if(Test-Path -LiteralPath $root -PathType Container){foreach($n in $script:DataFolderNames){$p=Join-Path $root $n;if(Test-Path -LiteralPath $p -PathType Container){Get-Item -LiteralPath $p -Force -ErrorAction Stop}}};if(Test-Path -LiteralPath $olk -PathType Container){Get-Item -LiteralPath $olk -Force -ErrorAction Stop})
+if(-not $folders.Count){throw "Nothing to do: new Outlook has no data folders for this user under $olk or $root."}
+foreach($f in $folders){if($f.FullName -ieq $olk){$null=Assert-LocalRepairPath $f.FullName $local}else{$null=Assert-LocalRepairPath $f.FullName $root}}
 [double]$bytes=0;foreach($f in $folders){$bytes+=(@(Get-ChildItem -LiteralPath $f.FullName -Recurse -File -Force -ErrorAction SilentlyContinue) | Measure-Object Length -Sum).Sum}
 $mb=Round1 ($bytes/1MB)
-$old=@(Get-ChildItem -LiteralPath $root -Directory -Force -ErrorAction Stop | Where-Object {$_.Name -like '*.old-*'})
+$old=@(@(if(Test-Path -LiteralPath $root -PathType Container){Get-ChildItem -LiteralPath $root -Directory -Force -ErrorAction Stop})+@(Get-ChildItem -LiteralPath ([IO.Path]::GetDirectoryName($olk)) -Directory -Force -ErrorAction SilentlyContinue | Where-Object {$_.Name -like 'Olk.old-*'}) | Where-Object {$_.Name -like '*.old-*'})
 [double]$oldBytes=0;foreach($d in $old){$oldBytes+=(@(Get-ChildItem -LiteralPath $d.FullName -Recurse -File -Force -ErrorAction SilentlyContinue) | Measure-Object Length -Sum).Sum}
 $procs=@(Get-TargetProcesses 'olk.exe' $user)
 $freshNote='';$newest=$null
@@ -287,10 +287,10 @@ foreach($f in $folders){$n=@(Get-ChildItem -LiteralPath $f.FullName -Recurse -Fi
 if($newest){$ageMin=[int]((Get-Date)-$newest.LastWriteTime).TotalMinutes;if($ageMin -le 10){$freshNote=" WARNING: local data was written $ageMin minute(s) ago, so the app appears active. Rule out a filter, sort or Focused/Other setting (Get-NewOutlookSyncState) first.";Add-Warning ("Local data written {0} minute(s) ago; the app appears active. Rule out a display setting before resetting." -f $ageMin)}}
 $preview=[bool]$WhatIfPreference;$stamp=(Get-Date -Format 'yyyyMMdd-HHmmss')+'-'+[guid]::NewGuid().ToString('N').Substring(0,8)
 $script:RepairLog=New-RepairLog $LogPath (Join-Path $local 'Temp') 'NewOutlookCacheReset' $preview
-$plan="Close new Outlook in session $($user.SessionId), move $($folders.Count) data folders ($mb MB) under $root to <name>.old-$stamp, then open new Outlook. It signs in again through Windows; unsent drafts and offline-only items may be lost."+$freshNote
+$plan="Close new Outlook in session $($user.SessionId), move $($folders.Count) data folders ($mb MB: Microsoft\Olk and the Store package data) to <name>.old-$stamp, then open new Outlook. It signs in again through Windows; unsent drafts and offline-only items may be lost."+$freshNote
 Write-RepairLog $plan
 foreach($f in $folders){Write-RepairLog ('Planned move: '+$f.FullName+' -> '+$f.Name+'.old-'+$stamp)}
-$o=[ordered]@{ComputerName=$env:COMPUTERNAME;CollectedAt=[datetime]::Now;WhatIf=$preview;Performed=$false;TargetUser=$user.Name;TargetSessionId=[int]$user.SessionId;RunningAs=$user.RunningAs;DataRoot=$root;FoldersFound=$folders.Count;DataMB=$mb;NewOutlookWasRunning=[bool]$procs.Count;NewOutlookClosedGracefully=$null;FoldersMoved=0;MovedFolders='';MoveFailed='';NewOutlookStarted=$false;StartMethod='Not attempted';OldBackupsMB=(Round1 ($oldBytes/1MB));LogPath=$script:RepairLog;NextStep='Preview or declined; no folders moved';Warnings=''}
+$o=[ordered]@{ComputerName=$env:COMPUTERNAME;CollectedAt=[datetime]::Now;WhatIf=$preview;Performed=$false;TargetUser=$user.Name;TargetSessionId=[int]$user.SessionId;RunningAs=$user.RunningAs;DataRoot=$root;OlkFolder=$olk;FoldersFound=$folders.Count;DataMB=$mb;NewOutlookWasRunning=[bool]$procs.Count;NewOutlookClosedGracefully=$null;FoldersMoved=0;MovedFolders='';MoveFailed='';NewOutlookStarted=$false;StartMethod='Not attempted';OldBackupsMB=(Round1 ($oldBytes/1MB));LogPath=$script:RepairLog;NextStep='Preview or declined; no folders moved';Warnings=''}
 try{$go=$PSCmdlet.ShouldProcess(("$($user.Name), session $($user.SessionId), $root"),$plan)}catch{throw 'Refusing: this host cannot show the confirmation prompt. Run interactively or pass -WhatIf.'}
 $moved=New-Object System.Collections.Generic.List[string];$failed=New-Object System.Collections.Generic.List[string]
 if($go){
@@ -308,15 +308,15 @@ if($go){
         Start-Sleep -Seconds 2
         foreach($f in $folders){
             try{
-                $safe=Assert-LocalRepairPath $f.FullName $root
-                if([IO.Path]::GetDirectoryName($safe) -ine $root -or $script:DataFolderNames -notcontains [IO.Path]::GetFileName($safe)){throw 'Folder no longer matches the inventory'}
+                $isOlk=($f.FullName -ieq $olk);$safe=Assert-LocalRepairPath $f.FullName $(if($isOlk){$local}else{$root})
+                if(-not $isOlk -and ([IO.Path]::GetDirectoryName($safe) -ine $root -or $script:DataFolderNames -notcontains [IO.Path]::GetFileName($safe))){throw 'Folder no longer matches the inventory'}
                 $newName=$f.Name+'.old-'+$stamp
-                if(Test-Path -LiteralPath (Join-Path $root $newName)){throw 'Backup name already exists'}
+                if(Test-Path -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($safe)) $newName)){throw 'Backup name already exists'}
                 Rename-Item -LiteralPath $safe -NewName $newName -Confirm:$false -ErrorAction Stop
                 $o.FoldersMoved++;$moved.Add($newName);Write-RepairLog ('Moved: '+$safe+' -> '+$newName)
             }catch{$failed.Add($f.Name+': '+$_.Exception.Message)}
         }
-    }catch{Add-Warning ('Cache reset: '+$_.Exception.Message)}
+    }catch{$failed.Add('Reset aborted: '+$_.Exception.Message);Add-Warning ('Cache reset: '+$_.Exception.Message)}
     finally{
         try{
             if(@(Get-TargetProcesses 'olk.exe' $user).Count){$o.StartMethod='Already running';$o.NewOutlookStarted=$true}
