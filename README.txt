@@ -2,17 +2,9 @@ WINDOWS 11 TROUBLESHOOTING TOOLKIT
 =================================
 
 START HERE
-  Open 01 Diagnostics and choose the folder for the problem.
-  For an unfamiliar PC, start with System Information\Machine Fact Sheet.
-  Each tool has a brief README.txt explaining when and how to use it.
-
-HOW TO RUN
-  Double-click the CMD with the same name as the PS1 script.
-  Keep the files together. Approve administrator access when requested.
-  Most diagnostic reports go to C:\Temp\Toolkit on the PC being checked.
-  The Internet Speed and Profile Inventory guides explain their outputs.
-  Performance Overview writes to C:\Temp unless its guide says otherwise.
-  Read warnings: missing data does not mean the check passed.
+  Choose the folder for the problem, then read the tool's short README.txt.
+  Open its matching CMD. Numbers suggest an order, not a mandatory sequence.
+  New to the PC? Use 01 System and Windows\01 Check Computer Details.
 
 BEFORE USING THIS ON A CLIENT PC
   The diagnostics list Kerberos tickets, saved credential names, local
@@ -25,61 +17,59 @@ BEFORE USING THIS ON A CLIENT PC
     Get-ChildItem "D:\Troubleshooting Scripts" -Recurse -File | Unblock-File
   Do not change the PC's execution policy or the .ps1 file association.
 
-FOLDERS
-  01 Diagnostics
-    01 System Information
-      Machine Fact Sheet         Hardware, Windows and basic security
-      Boot and Shutdown History  Restarts, crashes and shutdown reasons
-      Reliability History        Application and Windows failures
-      Recent Changes             Updates, installs and driver changes
-      Software Inventory         Installed applications
-    02 Network
-      Connectivity               Network, DNS and endpoint checks
-      Mapped Drives and Credentials
-      Internet Speed             Download, upload and connection timing
-    03 Accounts and Profiles
-      Group Policy               Applied policy and recent errors
-      Logon Health               Domain, tickets, time and Entra status
-      OneDrive and Folder Backup  Account and folder configuration
-      Outlook Sync State (Classic)  Classic Outlook: sync or display problem
-      Outlook Sync State (New Outlook)  New Outlook app, data and service
-      Profile Health             Profile records and size estimates
-      Profile Inventory          CSV inventory; does not delete profiles
-    04 Performance
-      Disk Space                 Space usage and cleanup candidates
-      Resource Usage             Sampled CPU, memory and disk activity
-      Startup Programs           Startup entries, tasks and services
-      Performance Overview       Broad system snapshot
-    05 Windows Update
-      Update Status              Updates, policy and reboot indicators
-    06 Printing
-      Printer Inventory          Printers, drivers, ports and spooler
-    07 Security
-      Antivirus Status           Microsoft Defender status
-      Local Administrators       Administrators group membership
-      Encryption and Firmware    BitLocker, TPM and firmware
-  02 Repairs
-    01 Windows System Files      DISM and System File Checker
-    02 Print Queue               Clear jobs and restart the spooler
-    03 Explorer and Icon Cache   Restart Explorer and rebuild icon caches
-    04 Outlook Cache (Classic)   Rename classic Outlook OST caches
-    05 Outlook Cache (New Outlook)  Move new Outlook data aside and reopen
-  03 Fleet                       Run reviewed diagnostics over existing WinRM
-  _Maintenance                   Test scripts, results and archived material
+CHECK -> REPAIR IF NEEDED -> VERIFY
+  00 Case and Verification keeps the issue, before/after checks and outcome.
+  Save the original error before changing anything.
+  Choose the smallest repair justified by the check. Preview with -WhatIf.
+  Retest the original task. Command success alone does not prove a fix.
+  Save work and restart manually when required; then capture After checks.
 
-REPAIRS
-  Read the tool's guide and preview before applying a repair.
-  Example from the Explorer repair folder in PowerShell:
-    .\Repair-Explorer.ps1 -WhatIf -Display
-  Repairs ask for confirmation and write a log.
-  Run user repairs in the affected user's session.
-  A -NoPowerShell.cmd file is a separate native version with fewer options.
-  Read its /? help; use /whatif to preview native repairs.
+PROBLEM AREAS
+  00 Case and Verification
+    Start a case, capture checks, compare results and export a local ZIP.
+  01 System and Windows
+    Details, crashes, restarts, recent changes, software and updates.
+    Update repair, DISM checks/repair, SFC and Explorer/icon repair.
+  02 Network
+    Connection, speed, mapped drives, dropouts and targeted repairs.
+  03 Accounts and Profiles
+    Sign-in, policy, profiles and OneDrive; time, policy and trust repairs.
+  04 Performance
+    Resources, space, startup, storage reliability and scoped Temp cleanup.
+  05 Printing
+    Check -> cancel one job -> full queue reset if needed -> test page.
+  06 Outlook
+    Classic: check -> safe mode/add-ins -> cache rebuild if justified.
+    New: check app/service -> cache reset if justified.
+  07 Security
+    Defender, local administrators, encryption and firmware checks.
+  08 Fleet
+    Reviewed standalone diagnostics over existing WinRM.
+  09 Apps and Programs
+    Check -> Repair -> test -> Reset only if needed -> verify again.
+  10 Teams
+    Check -> restart -> clear cache only if needed -> test sign-in/calls.
+  11 Audio Camera and Devices
+    Check defaults/devices -> targeted restart or Settings -> practical test.
 
-NOTES
-  30 tools: 24 local diagnostics, five repairs and one fleet runner.
-  Domain/Entra and successful fleet runs need a managed test environment.
-  Outlook repairs: classic needs a local OST; new Outlook signs in again.
-  DISM/SFC commands were checked; execution was excluded from laptop tests.
-  Current test summary: _Maintenance\Documentation\TEST-RESULTS.txt.
-  The original folders and files are preserved in _Maintenance\Archive.
+RUNNING AND REPORTS
+  Run user tools in the affected user's desktop session.
+  Some machine tools request administrator access.
+  Reports normally go to C:\Temp\Toolkit; check each tool's guide.
+  The 25 workflow additions also write JSON and accept -ReportPath/-CasePath.
+  DISM choices use -LogPath and write TXT/JSON plus a DISM log.
+  Unavailable information is not a passing check.
+  Repair and Reset differ: app Reset deletes local app data and settings.
+
+KEEP THE TOOLKIT TOGETHER
+  59 tools: the original 30, 25 workflow additions and 4 DISM/SFC choices.
+  Each numbered CMD has a matching PS1 and short README.txt.
+  New tools require _Maintenance\Runtime; keep that folder when copying.
+  Seven older tools also have a -NoPowerShell.cmd alternative.
+  The new shared-runtime tools are local tools, not Fleet runner inputs.
+  DISM/SFC execution was excluded from testing at the owner's request.
+
+REVIEW RECORDS
+  _Maintenance\Documentation\PROJECT-STATUS.txt
+  _Maintenance\Documentation\TEST-RESULTS.txt
+  _Maintenance\Documentation\CLAUDE-REVIEW-HANDOFF.txt
