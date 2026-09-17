@@ -1,6 +1,6 @@
 # Windows 11 Troubleshooting Toolkit
 
-A field toolkit for an MSP technician: **60 PowerShell diagnostic and repair tools** for Windows 11 laptops and desktops on Active Directory and Microsoft 365. It runs straight from a flash drive, installs nothing, and needs only Windows PowerShell 5.1 with inbox modules.
+A field toolkit for an MSP technician: **61 PowerShell diagnostic and repair tools** for Windows 11 laptops and desktops on Active Directory and Microsoft 365. It runs straight from a flash drive, installs nothing, and needs only Windows PowerShell 5.1 with inbox modules.
 
 Every tool has a double-click `.cmd` launcher and a one-page plain-text guide that opens with a CHECK or REPAIR tag and the admin requirement, writes a report the technician can attach to the ticket, and is built to a written specification with an automated acceptance suite. The folders are organised the way a ticket is worked: **check, repair only what the check justifies, then verify**.
 
@@ -16,7 +16,8 @@ Every tool has a double-click `.cmd` launcher and a one-page plain-text guide th
                              DNS/DHCP repair, reconnect one mapped drive
 03 Accounts and Profiles     Sign-in, Group Policy, profile health, profile data, OneDrive;
                              OneDrive restart/reset, time resync, policy refresh, domain trust repair;
-                             enabled accounts left in a disabled-users OU (needs RSAT)
+                             enabled accounts left in a disabled-users OU (needs RSAT);
+                             profile sign-in age from local sign-in records
 04 Performance               Live resources, disk space, startup programs, overview, storage
                              reliability; scoped cleanup of old temporary files
 05 Printing                  Printers and queue; cancel one job, full queue reset, test page
@@ -32,7 +33,7 @@ _Maintenance\Runtime         Shared implementation required by the 29 newer tool
 
 Every tool folder holds `NN-Name.ps1`, `NN-Name.cmd` and `README.txt`. Seven of the original tools also ship a `-NoPowerShell.cmd` for machines where PowerShell is blocked by policy. The number is a suggested order inside its area, not a mandatory sequence.
 
-Two generations live side by side. The original 30 tools are standalone scripts with an identical embedded helper block, return structured objects, and are the only scripts the fleet runner accepts. The 29 newer tools are thin frontends over the shared runtime: a common approval gate, path guards, process-ownership checks, evidence records and TXT/JSON reports. One further standalone tool, the enabled-accounts-in-disabled-OU check, queries Active Directory read-only, needs the RSAT module, and has its own fixture harness.
+Two generations live side by side. The original 30 tools are standalone scripts with an identical embedded helper block, return structured objects, and are the only scripts the fleet runner accepts. The 29 newer tools are thin frontends over the shared runtime: a common approval gate, path guards, process-ownership checks, evidence records and TXT/JSON reports. Two further standalone tools have their own fixture harnesses: the enabled-accounts-in-disabled-OU check queries Active Directory read-only and needs the RSAT module, and the profile sign-in age check reads local Security, Winlogon and session records by SID and never calls a profile stale or safe to delete.
 
 ## Design rules that every tool follows
 
@@ -54,9 +55,9 @@ From PowerShell, any `NN-Name.ps1` returns objects for `Export-Csv` or `ConvertT
 
 ## Status
 
-All 60 tools are built and reviewed. On a workgroup Windows 11 Home machine the checks run elevated and unelevated, every guard and preview path is exercised by fixtures, and these repairs have run for real: Print Spooler reset, Explorer and icon cache, classic and new Outlook cache, Windows time, DNS cache, user and computer policy refresh, Teams restart and cache move, OneDrive restart, Calculator reset with package verification, single print-job cancellation and a physically confirmed test page, and old-file cleanup against fixtures. An independent audit of the shared runtime followed, and its findings were fixed and re-verified.
+All 61 tools are built and reviewed. On a workgroup Windows 11 Home machine the checks run elevated and unelevated, every guard and preview path is exercised by fixtures, and these repairs have run for real: Print Spooler reset, Explorer and icon cache, classic and new Outlook cache, Windows time, DNS cache, user and computer policy refresh, Teams restart and cache move, OneDrive restart, Calculator reset with package verification, single print-job cancellation and a physically confirmed test page, and old-file cleanup against fixtures. An independent audit of the shared runtime followed, and its findings were fixed and re-verified.
 
-The acceptance suite passes with zero failures: 922 static and runtime checks, 55 regression checks and 104 launcher checks on the original tools; 160 fixture, 62 launcher and 390 delivery checks on the newer tools; 33 fixture, 32 launcher and 3 preview checks on the DISM/SFC choices, none of which start DISM or SFC; 23 fixture checks on the directory tool with no live directory access.
+The acceptance suite passes with zero failures: 922 static and runtime checks, 55 regression checks and 104 launcher checks on the original tools; 160 fixture, 62 launcher and 396 delivery checks on the newer tools; 33 fixture, 32 launcher and 3 preview checks on the DISM/SFC choices, none of which start DISM or SFC; 23 fixture checks on the directory tool with no live directory access; 61 fixture checks on the profile sign-in tool.
 
 **Not yet proven:** the domain and Entra paths (Group Policy against a domain controller, Kerberos, machine trust repair, the disabled-OU directory query, LAPS, WSUS targeting, GPO printer attribution) degrade to a warning on a non-domain machine but have not returned real data from a domain. DISM and SFC execution, a live update-cache reset, a live audio or camera restart, OneDrive reset, WinGet and MSI repair, Outlook safe mode and add-in changes, and a real mapped-drive reconnect are covered by fixtures and previews only. Validation on a domain-joined machine is the next step.
 

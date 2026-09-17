@@ -25,6 +25,8 @@ HOW TO RUN IT
 
 WHAT TO LOOK AT
 ---------------
+  - Use 11 Check Profile Sign In Age for sign-in dates.
+  - LastUseTime can include background activity.
   - PRESERVE marks localuser and Public; add site accounts in the script.
   - Loaded means the profile is in use.
   - LocalDataMB covers selected folders.

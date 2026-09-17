@@ -24,6 +24,7 @@ HOW TO RUN IT
 
 WHAT TO LOOK AT
 ---------------
+  - For sign-in-based age, use 11 Check Profile Sign In Age in this area.
   - Check DataIssue, InRegistry, FolderExists and Loaded.
   - Stale is a review flag; confirm ownership, retention and backups.
   - SizeComplete indicates whether a measured size is partial.

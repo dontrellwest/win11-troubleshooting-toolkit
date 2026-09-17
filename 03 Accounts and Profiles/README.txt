@@ -1,7 +1,7 @@
 ACCOUNTS AND PROFILES
 =====================
 
-  Order: checks 01-05 (and 10) first; repairs 06-09 only when justified.
+  Order: checks 01-05 and 10-11 first; repairs 06-09 only when justified.
 
 CHECKS
 ------
@@ -19,6 +19,10 @@ CHECKS
       - Lists enabled AD accounts left in the disabled-users OU. Read-only.
       - Needs RSAT AD tools and domain access. Includes sub-OUs.
       - Select the OU, review the list and use the CSV for follow-up.
+  11  Check Profile Sign In Age
+      - Date and age of recorded sign-ins on this PC, with session evidence.
+      - Use before old-profile review; file activity is not a sign-in date.
+      - Unknown history never means safe to delete. No profiles are removed.
 
 REPAIRS
 -------

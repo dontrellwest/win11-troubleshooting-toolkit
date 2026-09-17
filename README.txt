@@ -43,6 +43,7 @@ PROBLEM AREAS
   03  Accounts and Profiles
       Sign-in, policy, profiles and OneDrive; time, policy and trust repairs.
       Find enabled AD accounts left in a disabled-users OU.
+      Review local profile sign-in age with corroborating session evidence.
   04  Performance
       Resources, space, startup, storage reliability and scoped Temp cleanup.
   05  Printing
@@ -74,8 +75,8 @@ RUNNING AND REPORTS
 
 KEEP THE TOOLKIT TOGETHER
 -------------------------
-  - 60 tools: the original 30, 25 workflow additions, 4 DISM/SFC choices and
-    the AD disabled-OU check.
+  - 61 tools: the original 30, 25 workflow additions, 4 DISM/SFC choices,
+    the AD disabled-OU check and the profile sign-in age check.
   - Each numbered CMD has a matching PS1 and short README.txt.
   - New tools require _Maintenance\Runtime; keep that folder when copying.
   - Seven older tools also have a -NoPowerShell.cmd alternative.
