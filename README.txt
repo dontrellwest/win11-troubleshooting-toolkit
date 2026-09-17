@@ -55,6 +55,7 @@ PROBLEM AREAS
       Defender, local administrators, encryption and firmware checks.
   08  Fleet
       Reviewed standalone diagnostics over existing WinRM.
+      Windows 10 inventory through N-central agents or a central PC list/AD.
   09  Apps and Programs
       Check -> Repair -> test -> Reset only if needed -> verify again.
   10  Teams
@@ -75,8 +76,8 @@ RUNNING AND REPORTS
 
 KEEP THE TOOLKIT TOGETHER
 -------------------------
-  - 61 tools: the original 30, 25 workflow additions, 4 DISM/SFC choices,
-    the AD disabled-OU check and the profile sign-in age check.
+  - 62 tools: the original 30, 25 workflow additions, 4 DISM/SFC choices,
+    AD disabled-OU, profile sign-in age and Windows 10 fleet inventory.
   - Each numbered CMD has a matching PS1 and short README.txt.
   - New tools require _Maintenance\Runtime; keep that folder when copying.
   - Seven older tools also have a -NoPowerShell.cmd alternative.

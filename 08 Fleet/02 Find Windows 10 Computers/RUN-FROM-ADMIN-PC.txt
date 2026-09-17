@@ -1,0 +1,50 @@
+RUN FROM A TECHNICIAN OR ADMIN PC
+===============================
+
+WHERE THIS RUNS
+--------------
+  - Run Fleet mode on a Windows technician PC or management server with
+    network access and authorized WinRM access to the selected endpoints.
+  - A domain controller is not required. AD discovery needs RSAT AD tools.
+  - A normal domain account may read AD; remote OS reads need remote rights.
+  - Offsite/Entra-only/workgroup PCs are usually easier through N-central.
+  - The script does not enable WinRM or change firewall/TrustedHosts settings.
+
+USE AN EXPLICIT LIST
+--------------------
+  - Save names or FQDNs, one per line, in PCs.txt.
+  - Blank lines and # comments are allowed.
+  - From PowerShell in this tool's folder:
+      $tool = '.\02-Find-Windows-10-Computers.ps1'
+      & $tool -Mode Fleet -ComputerListPath C:\Temp\PCs.txt -Display
+  - Or supply names directly:
+      & $tool -Mode Fleet -ComputerName PC01,PC02 -Display
+
+DISCOVER FROM ACTIVE DIRECTORY
+------------------------------
+  - To use an exact OU/domain subtree, replace this example with your DN:
+      $base = 'OU=Workstations,DC=example,DC=com'
+      & $tool -Mode Fleet -FromAD -SearchBase $base -Display
+  - With -FromAD and no -SearchBase, it checks the current domain's computer
+    accounts. It does not automatically search every domain in a forest.
+  - Both enabled and disabled computer accounts are included by default.
+    Add -EnabledOnly if you intentionally want to exclude disabled accounts.
+  - Add -DirectoryServer dc01.example.com to select the discovery DC.
+  - AD OS metadata is kept for reference but never confirms Windows 10.
+    No AD OS filter is used, so missing/stale metadata does not hide targets.
+
+CONNECTION OPTIONS AND RESULTS
+------------------------------
+  - Add -Credential (Get-Credential) for another authorized domain account.
+    The credential is used for discovery and remote queries, not saved.
+  - Add -UseSSL only where WinRM HTTPS is already configured and trusted.
+  - Default: 12 concurrent checks, 30 seconds per target. Use -ThrottleLimit
+    and -TimeoutSeconds to adjust. Failed targets remain Unknown.
+  - Reports are saved on the PC running this command, not on remote targets.
+  - Windows10-Names.txt: plain names. Windows10.csv: details and timestamps.
+  - All.csv: every target. Unknown.csv: offline/denied/failed checks plus any
+    recorded AD OS information useful for follow-up.
+  - No live Windows 10 finding among reachable PCs is not proof the entire
+    fleet is upgraded. Reconcile Unknown rows and the discovery scope.
+
+  Live AD discovery and remote WinRM execution need testing in your domain.
