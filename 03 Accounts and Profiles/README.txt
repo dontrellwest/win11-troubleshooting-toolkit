@@ -14,6 +14,11 @@ REPAIRS WHEN THE CHECKS JUSTIFY THEM
   09 Repair Domain Computer Trust: advanced AD member-only repair.
      Resolve DNS, VPN and time first; provide an authorized domain account.
 
+AD ACCOUNT PLACEMENT CHECK
+  10 Find Enabled Users in Disabled OU: lists enabled accounts left there.
+     Read-only. Requires RSAT AD tools and domain access. Includes sub-OUs.
+     Select the OU, review the list and use the CSV for follow-up.
+
 Run user actions in the affected desktop session. Machine actions need admin.
 No automatic profile deletion, domain unjoin or time-policy replacement.
 Afterward, rerun the relevant check and repeat the original sign-in or sync.

@@ -34,6 +34,7 @@ PROBLEM AREAS
     Connection, speed, mapped drives, dropouts and targeted repairs.
   03 Accounts and Profiles
     Sign-in, policy, profiles and OneDrive; time, policy and trust repairs.
+    Find enabled AD accounts left in a disabled-users OU.
   04 Performance
     Resources, space, startup, storage reliability and scoped Temp cleanup.
   05 Printing
@@ -62,7 +63,7 @@ RUNNING AND REPORTS
   Repair and Reset differ: app Reset deletes local app data and settings.
 
 KEEP THE TOOLKIT TOGETHER
-  59 tools: the original 30, 25 workflow additions and 4 DISM/SFC choices.
+  60 tools, including the AD enabled-users-in-disabled-OU check.
   Each numbered CMD has a matching PS1 and short README.txt.
   New tools require _Maintenance\Runtime; keep that folder when copying.
   Seven older tools also have a -NoPowerShell.cmd alternative.
