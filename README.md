@@ -2,7 +2,7 @@
 
 A field toolkit for an MSP technician: **60 PowerShell diagnostic and repair tools** for Windows 11 laptops and desktops on Active Directory and Microsoft 365. It runs straight from a flash drive, installs nothing, and needs only Windows PowerShell 5.1 with inbox modules.
 
-Every tool has a double-click `.cmd` launcher and a one-page plain-text guide, writes a report the technician can attach to the ticket, and is built to a written specification with an automated acceptance suite. The folders are organised the way a ticket is worked: **check, repair only what the check justifies, then verify**.
+Every tool has a double-click `.cmd` launcher and a one-page plain-text guide that opens with a CHECK or REPAIR tag and the admin requirement, writes a report the technician can attach to the ticket, and is built to a written specification with an automated acceptance suite. The folders are organised the way a ticket is worked: **check, repair only what the check justifies, then verify**.
 
 > The field guides are deliberately `README.txt`, not Markdown: they have to open in Notepad on whatever machine a technician is standing at. `README.txt` in this folder is the drive's own front page. The maintenance folder it mentions (test harness, documentation, evidence, archives) is internal; only its `Runtime` part, which the newer tools require, is published here.
 
