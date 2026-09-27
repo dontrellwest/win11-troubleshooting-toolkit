@@ -27,7 +27,7 @@ Every check prints the same layout on screen and saves a copy to `C:\Temp\Toolki
 
 - **SUMMARY** with one RESULT line: NO PROBLEMS FOUND, REVIEW, ACTION NEEDED or INCOMPLETE.
 - **Findings** ranked PROBLEM, WARNING, NOT CHECKED, INFO and OK. Every PROBLEM and WARNING has a "Next:" step that names the tool to run, a complete command or a Settings path.
-- **Missing data is never a pass.** Anything a check could not read is NOT CHECKED. An automated test fails 251 parts of the checks one at a time and requires each failure to show up in the summary.
+- **Missing data is never a pass.** Anything a check could not read is NOT CHECKED. An automated test makes each part of the checks fail in turn and requires the failure to show up in the summary.
 - **DETAILS** with every value that was read.
 
 The profile checks treat file dates as old dates, never as proof that a user stopped signing in, and the sign-in check never calls a profile safe to delete.
@@ -44,7 +44,7 @@ The profile checks treat file dates as old dates, never as proof that a user sto
 
 All 30 tools have run for real on a Windows 11 laptop through their own CMD files, the way an RMM agent runs them, repairs included: DISM and SFC, the Windows Update reset, a network renew, the print queue, audio, Explorer, Teams, OneDrive and both Outlook cache repairs. A second, independent run of all 30 tools confirmed the results; its findings were fixed and re-tested live.
 
-The automated checks pass with zero failures: 1,157 static checks, 67 report-summary checks, 61 profile sign-in fixtures and 23 Active Directory fixtures.
+The automated checks pass with zero failures: a static check of every file, report-summary fixtures, and fixtures for the profile sign-in and Active Directory checks.
 
 **Not yet proven:** the domain paths (the Active Directory query, Group Policy against a domain controller, domain trust) have run only against fixtures and a workgroup machine. A second signed-in user, a stuck print job and physical printing were not tested live.
 
