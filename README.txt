@@ -129,5 +129,5 @@ MORE
     folder, Get-Help .\<name>.ps1 -Full shows options such as -Days.
   - Remote or scripted use (RMM): set TOOLKIT_UNATTENDED=1 to skip the
     "Start now?" question and the final pause.
-  - _Maintenance holds notes, tests and the archive. The tools do not need
-    it: the CMD files and the Scripts folder are the whole toolkit.
+  - The CMD files, the Scripts folder and this README are the whole
+    toolkit. Nothing else is needed to run it.
